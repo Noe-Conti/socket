@@ -1,7 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class ram(BaseModel):
@@ -32,4 +45,5 @@ def get_item(item_id: int) -> ram:
         return ram_usage[item_id]
     else:
         raise HTTPException(status_code=404, detail="Item not found")
+
 
