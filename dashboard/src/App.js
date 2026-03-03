@@ -13,7 +13,7 @@ function RamDisplay() {
 
     
     fetchRam();
-    const interval = setInterval(fetchRam, 5000);
+    const interval = setInterval(fetchRam, 1000);
     
     return () => clearInterval(interval);
   }, []);
