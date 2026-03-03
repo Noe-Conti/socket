@@ -5,9 +5,17 @@ function RamDisplay() {
   const [ramData, setRamData] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/metric/ram")
-    .then(res => res.json())
-    .then(data => setRamData(data));
+    const fetchRam = () => {
+      fetch("http://localhost:8080/metric/ram")
+      .then(res => res.json())
+      .then(data => setRamData(data));
+    }
+
+    
+    fetchRam();
+    const interval = setInterval(fetchRam, 5000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -27,3 +35,4 @@ export default function MyApp() {
     </div>
   );
 }
+
