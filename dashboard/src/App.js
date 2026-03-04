@@ -19,11 +19,19 @@ function RamDisplay() {
   }, []);
 
   return (
+    // <div>
+    //   {ramData.map((item, index) => (
+    //     <h2 key={index}>RAM: {item.ram_pourcentage}%</h2>
+    //   ))}
+    // </div>
+
     <div>
-      {ramData.map((item, index) => (
-        <h2 key={index}>RAM: {item.ram_pourcentage}%</h2>
-      ))}
+      {ramData.length > 0 &&(
+        <h2>RAM: {ramData.at(-1).ram_pourcentage}%</h2>
+      )}
     </div>
+
+
   );
 }
 
