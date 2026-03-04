@@ -1,0 +1,29 @@
+main{
+    display: flex;
+    flex-direction: column;
+}
+
+h2{
+    text-decoration: underline;
+}
+
+header{
+    padding-left: 5%;
+    display: flex;
+    background-color: #272727;
+    color: white;
+}
+
+.metric-container{
+    margin: 3%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    height: auto;
+}
+
+.metric{
+    border: solid;
+    margin: 1%;
+}
+

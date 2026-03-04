@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./App-style.css"
 
 
 function RamDisplay() {
@@ -27,7 +28,7 @@ function RamDisplay() {
 
     <div>
       {ramData.length > 0 &&(
-        <h2>RAM: {ramData.at(-1).ram_pourcentage}%</h2>
+        <h3>{ramData.at(-1).ram_pourcentage}%</h3>
       )}
     </div>
 
@@ -55,7 +56,7 @@ function CpuDisplay() {
   return (
     <div>
       {cpuData.length > 0 &&(
-        <h2>CPU: {cpuData.at(-1).cpu_pourcentage}%</h2>
+        <h3>{cpuData.at(-1).cpu_pourcentage}%</h3>
       )}
     </div>
   );
@@ -82,8 +83,10 @@ function OpenportsDisplay() {
 
   return (
     <div>
-      {openportsData.length > 0 &&(
-        <h2>Open ports: {openportsData.at(-1).openports.join(", ")}</h2>
+      {openportsData.length > 0 &&
+        openportsData.at(-1).openports.map((port, index) => (
+          <p key={index}>{port}</p>
+        )
       )}
     </div>
   );
@@ -92,12 +95,29 @@ function OpenportsDisplay() {
 
 export default function MyApp() {
   return (
-    <div>
-      <h1>SOCKet</h1>
-      <RamDisplay />
-      <CpuDisplay />
-      <OpenportsDisplay />
-    </div>
+    <>
+    <header>
+      <h1>SOCKet Security Monitoring System</h1>
+    </header>
+    <main>
+      <div class="metric-container">
+        <div class="left-metrics">
+          <div class="ram metric">
+            <h2>Utilisation de la RAM (%)</h2>
+            <p><RamDisplay /></p>
+          </div>
+          <div class="cpu metric">
+            <h2>Utilisation CPU (%)</h2>
+            <CpuDisplay />
+          </div>
+        </div>
+        <div class="ports metric">
+          <h2>Affichage des ports ouverts</h2>
+          <OpenportsDisplay />
+        </div>
+      </div>
+    </main>
+    </>
   );
 }
 
