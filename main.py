@@ -23,10 +23,14 @@ class ram(BaseModel):
 class cpu(BaseModel):
     cpu_pourcentage: float
 
+class ports(BaseModel):
+    openports: list[int]
+
 
 
 ram_usage = []
 cpu_usage = []
+openports = []
 
 
 
@@ -42,15 +46,6 @@ def get_all_ram():
     return ram_usage
 
 
-# @app.get("/metric/ram/{item_id}", response_model=ram)
-# def get_item(item_id: int) -> ram:
-#     if item_id < len(ram_usage):
-#         return ram_usage[item_id]
-#     else:
-#         raise HTTPException(status_code=404, detail="Item not found")
-
-
-
 #### CPU #####
 @app.post("/metric/cpu")
 def post_cpu_info(item: cpu):
@@ -62,4 +57,12 @@ def get_all_cpu():
     return cpu_usage
 
 
+#### Open Ports ####
+@app.post("/metric/openports")
+def post_openports_info(item: ports):
+    openports.append(item)
+    return item
 
+@app.get("/metric/openports")
+def get_all_openports():
+    return openports

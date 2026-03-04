@@ -61,12 +61,42 @@ function CpuDisplay() {
   );
 }
 
+
+
+
+function OpenportsDisplay() {
+  const [openportsData, setOpenportsData] = useState([]);
+
+  useEffect(() => {
+    const fetchOpenports = () => {
+      fetch("http://localhost:8080/metric/openports")
+      .then(res => res.json())
+      .then(data => setOpenportsData(data));
+    }
+
+    fetchOpenports();
+    const interval = setInterval(fetchOpenports, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      {openportsData.length > 0 &&(
+        <h2>Open ports: {openportsData.at(-1).openports.join(", ")}</h2>
+      )}
+    </div>
+  );
+}
+
+
 export default function MyApp() {
   return (
     <div>
       <h1>SOCKet</h1>
       <RamDisplay />
       <CpuDisplay />
+      <OpenportsDisplay />
     </div>
   );
 }
