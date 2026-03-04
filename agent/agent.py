@@ -8,12 +8,16 @@ def ramPush():
     myobj = {'ram_pourcentage': ram.percent}
     x = requests.post(url, json = myobj)
 
+def cpuPush():
+    cpu = psutil.cpu_percent()
+    url = "http://localhost:8080/metric/cpu"
+    myobj = {'cpu_pourcentage': cpu}
+    x = requests.post(url, json = myobj)
+
 while True:
     ramPush()
+    cpuPush()
     time.sleep(3)
 
-#print(ram.percent)
-# print("CPU usage (%):", psutil.cpu_percent(interval=1))
-#print("RAM used (GB):", round(ram.used / 1e9, 2))
 
 

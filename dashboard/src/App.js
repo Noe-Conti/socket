@@ -35,11 +35,38 @@ function RamDisplay() {
   );
 }
 
+
+function CpuDisplay() {
+  const [cpuData, setCpuData] = useState([]);
+
+  useEffect(() => {
+    const fetchCpu = () => {
+      fetch("http://localhost:8080/metric/cpu")
+      .then(res => res.json())
+      .then(data => setCpuData(data));
+    }
+
+    fetchCpu();
+    const interval = setInterval(fetchCpu, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div>
+      {cpuData.length > 0 &&(
+        <h2>CPU: {cpuData.at(-1).cpu_pourcentage}%</h2>
+      )}
+    </div>
+  );
+}
+
 export default function MyApp() {
   return (
     <div>
       <h1>SOCKet</h1>
       <RamDisplay />
+      <CpuDisplay />
     </div>
   );
 }
