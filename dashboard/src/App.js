@@ -7,7 +7,7 @@ function RamDisplay() {
 
   useEffect(() => {
     const fetchRam = () => {
-      fetch("http://localhost:8080/metric/ram")
+      fetch("http://localhost:80/metric/ram")
       .then(res => res.json())
       .then(data => setRamData(data));
     }
@@ -42,7 +42,7 @@ function CpuDisplay() {
 
   useEffect(() => {
     const fetchCpu = () => {
-      fetch("http://localhost:8080/metric/cpu")
+      fetch("http://localhost:80/metric/cpu")
       .then(res => res.json())
       .then(data => setCpuData(data));
     }
@@ -70,7 +70,7 @@ function OpenportsDisplay() {
 
   useEffect(() => {
     const fetchOpenports = () => {
-      fetch("http://localhost:8080/metric/openports")
+      fetch("http://localhost:80/metric/openports")
       .then(res => res.json())
       .then(data => setOpenportsData(data));
     }
