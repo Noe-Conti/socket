@@ -1,20 +1,64 @@
 main{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+
+    border: solid;
+    border-color: red;
+
+    height: 100vh;
+    width: 100vw;
 }
+
+.nav a{
+    text-decoration: none;
+    color: white;
+}
+
+.nav a:hover{
+    text-decoration: underline;
+}
+
+.title{
+    font-size: large;
+    border-bottom: solid;
+    border-width: 2px;
+    padding-bottom: 5%;
+}
+
+ul, li{
+    margin: 0;
+    padding: 0;
+}
+
+ul{
+    list-style: none;
+    margin-top: 20%;
+}
+
+li{
+    margin: 10% 10% 10% 10%;
+}
+
 
 h2{
     text-decoration: underline;
 }
 
 header{
-    padding-left: 5%;
+
+    
+
     display: flex;
+    padding: 1%;
+    justify-content: center;
     background-color: #272727;
     color: white;
+
+    width: fit-content;
+    max-width: 18vw;
 }
 
-.metric-container{
+.content{
     margin: 3%;
     display: flex;
     flex-direction: row;

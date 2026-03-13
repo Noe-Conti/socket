@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect } from "react"
 import "./App-style.css"
+import Navbar from "./navbar.js"
+
+import Apropos from "./pages/apropos"
+import Dashboard from "./pages/dashboard"
+import Parc from "./pages/parc"
+import Tickets from "./pages/tickets"
 
 
 function RamDisplay() {
@@ -94,14 +100,40 @@ function OpenportsDisplay() {
 
 
 export default function MyApp() {
+  let Component;
+  switch(window.location.pathname){
+    case "/":
+      Component = Dashboard
+      break
+    case "/apropos":
+      Component = Apropos
+      break
+    case "/dashboard":
+      Component = Dashboard
+      break
+    case "/parc":
+      Component = Parc
+      break
+    case "/tickets":
+      Component = Tickets
+      break
+    default:
+      Component = Dashboard
+  }
   return (
     <>
-    <header>
-      <h1>SOCKet Security Monitoring System</h1>
-    </header>
     <main>
-      <div class="metric-container">
-        <div class="left-metrics">
+      <header>
+        {/* Barre latérale moche */}
+        <Navbar />
+      </header>
+      
+      <div className="content">
+
+        <Component />
+
+
+        {/* <div class="left-metrics">
           <div class="ram metric">
             <h2>Utilisation de la RAM (%)</h2>
             <p><RamDisplay /></p>
@@ -114,7 +146,7 @@ export default function MyApp() {
         <div class="ports metric">
           <h2>Affichage des ports ouverts</h2>
           <OpenportsDisplay />
-        </div>
+        </div> */}
       </div>
     </main>
     </>
