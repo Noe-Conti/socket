@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+from datetime import datetime, timezone
 
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000"
+    "http://localhost:3000",
     "http://127.0.0.1:3000"
 ]
 
@@ -20,6 +21,7 @@ app.add_middleware(
 
 class ram(BaseModel):
     ram_pourcentage: float
+    time_stamp: datetime = None #Marque de temps pour vérifier date du dernier enregistrement, pour vérifier si agent actif
 
 class cpu(BaseModel):
     cpu_pourcentage: float
@@ -38,6 +40,7 @@ openports = []
 #### RAM #####
 @app.post("/metric/ram")
 def post_ram_info(item: ram):
+    item.time_stamp = datetime.now(timezone.utc)
     ram_usage.append(item)
     return item
     
