@@ -1,10 +1,11 @@
 FROM python:latest
 
 WORKDIR /app
+COPY requirements.txt .
+
+RUN pip install --upgrade pip --no-cache-dir -r requirements.txt
 
 COPY . /app
-
-RUN pip install --upgrade pip --no-cache-dir fastapi torch uvicorn pydantic
 
 EXPOSE 80
 
