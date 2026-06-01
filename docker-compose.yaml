@@ -48,7 +48,7 @@ services:
   poste1:
     build: 
       context: ./agent
-      dockerfile: Dockerfile
+      dockerfile: dockerfile
     environment:
       - BACKEND_URL=http://backend:80
     depends_on:
@@ -57,7 +57,7 @@ services:
   poste2:
       build: 
         context: ./agent
-        dockerfile: Dockerfile
+        dockerfile: dockerfile
       environment:
         - BACKEND_URL=http://backend:80
       depends_on:
