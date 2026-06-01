@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN pip install --upgrade pip --no-cache-dir fastapi torch uvicorn pydantic
+RUN pip install --upgrade pip --no-cache-dir -r requirements.txt
 
 EXPOSE 80
 
