@@ -1,3 +1,4 @@
+import os
 import psutil
 import time
 import requests
@@ -10,7 +11,7 @@ try:
 except Exception:
     IP = "unknown"
 
-BACKEND_URL = "http://localhost:80"
+BACKEND_URL = os.environ["BACKEND_URL"]
 
 
 def ramPush():
