@@ -43,5 +43,24 @@ services:
     depends_on:
       - backend
 
+
+#Machines simulées sur lesquelles l'agent tourne
+  poste1:
+    build: 
+      context: ./agent
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://backend:80
+    depends_on:
+      - backend
+
+  poste2:
+      build: 
+        context: ./agent
+        dockerfile: Dockerfile
+      environment:
+        - BACKEND_URL=http://backend:80
+      depends_on:
+        - backend
 volumes:
   mongo_data:
