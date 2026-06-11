@@ -1,240 +1,247 @@
 import { useState, useEffect } from "react"
-export default function Parc(){
 
+export default function Parc() {
 
-  //Si dernier enregistrement de l'agent < 5s, agent online. Sinon, agent offline
-    const [agentOnline, setAgentOnline] = useState(null); // null = en cours de vérification
-    useEffect(() => {
-      const checkAgent = () => {
-        fetch("http://localhost:80/metric/ram")
+  const [machines, setMachines] = useState([]);
+  const [machineStatus, setMachineStatus] = useState({});
+  const [selectedMachine, setSelectedMachine] = useState(null);
+
+  // Récupère la liste des machines connues toutes les 3s
+  useEffect(() => {
+    const fetchMachines = () => {
+      fetch("http://localhost:80/metric/machines")
+        .then(res => res.json())
+        .then(data => setMachines(data))
+        .catch(() => setMachines([]));
+    };
+    fetchMachines();
+    const interval = setInterval(fetchMachines, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Pour chaque machine connue, vérifie si son dernier envoi RAM date de moins de 5s
+  useEffect(() => {
+    if (machines.length === 0) return;
+
+    const checkAll = () => {
+      machines.forEach(hostname => {
+        fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => {
-            if (data.length === 0) {setAgentOnline(false); return; } //Si aucune data, offline bien sûr
+            if (data.length === 0) {
+              setMachineStatus(prev => ({ ...prev, [hostname]: false }));
+              return;
+            }
             const last = new Date(data.at(-1).time_stamp);
-            const age = (Date.now() - last) / 1000;
-            setAgentOnline(age < 5);
+            const ageSeconds = (Date.now() - last) / 1000;
+            setMachineStatus(prev => ({ ...prev, [hostname]: ageSeconds < 5 }));
           })
-          .catch((err) => {
-            setAgentOnline(false);
-            console.log("erreur:", err);
-          })
-      };
+          .catch(() => setMachineStatus(prev => ({ ...prev, [hostname]: false })));
+      });
+    };
 
-      checkAgent();
-      const interval = setInterval(checkAgent, 1000);
-      return () => clearInterval(interval);
-    }, []);
+    checkAll();
+    const interval = setInterval(checkAll, 1000);
+    return () => clearInterval(interval);
+  }, [machines]);
 
 
-    function RamDisplay() {
-      const [ramData, setRamData] = useState([]);
+  // Composants d'affichage — chacun accepte un hostname pour filtrer ses requêtes
 
-      useEffect(() => {
-        const fetchRam = () => {
-          fetch("http://localhost:80/metric/ram")
+  function RamDisplay({ hostname }) {
+    const [ramData, setRamData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setRamData(data))
           .catch(() => setRamData([]));
-        }
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
 
-        fetchRam();
-        const interval = setInterval(fetchRam, 1000);
+    return (
+      <div>
+        {ramData.length > 0 && <h3>{ramData.at(-1).ram_pourcentage}%</h3>}
+      </div>
+    );
+  }
 
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {ramData.length > 0 &&(
-            <h3>{ramData.at(-1).ram_pourcentage}%</h3>
-          )}
-        </div>
-      );
-    }
-
-
-  function CpuDisplay() {
-      const [cpuData, setCpuData] = useState([]);
-
-      useEffect(() => {
-        const fetchCpu = () => {
-          fetch("http://localhost:80/metric/cpu")
+  function CpuDisplay({ hostname }) {
+    const [cpuData, setCpuData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/cpu?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setCpuData(data))
           .catch(() => setCpuData([]));
-        }
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
 
-        fetchCpu();
-        const interval = setInterval(fetchCpu, 1000);
+    return (
+      <div>
+        {cpuData.length > 0 && <h3>{cpuData.at(-1).cpu_pourcentage}%</h3>}
+      </div>
+    );
+  }
 
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {cpuData.length > 0 &&(
-            <h3>{cpuData.at(-1).cpu_pourcentage}%</h3>
-          )}
-        </div>
-      );
-    }
-
-
-  function DiskUsage() {
-      const [diskData, setDiskData] = useState([]);
-
-      useEffect(() => {
-        const fetchDisk = () => {
-          fetch("http://localhost:80/metric/disk")
+  function DiskUsage({ hostname }) {
+    const [diskData, setDiskData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/disk?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setDiskData(data))
           .catch(() => setDiskData([]));
-        }
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
 
-        fetchDisk();
-        const interval = setInterval(fetchDisk, 1000);
+    return (
+      <div>
+        {diskData.length > 0 && (
+          <h3>{diskData.at(-1).disk_pourcentage}% ({diskData.at(-1).disk_used_go} Go / {diskData.at(-1).disk_total_go} Go)</h3>
+        )}
+      </div>
+    );
+  }
 
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {diskData.length > 0 &&(
-            <h3>{diskData.at(-1).disk_pourcentage}% ({diskData.at(-1).disk_used_go} Go / {diskData.at(-1).disk_total_go} Go)</h3>
-          )}
-        </div>
-      );
-    }
-
-
-    function OpenportsDisplay() {
-      const [openportsData, setOpenportsData] = useState([]);
-
-      useEffect(() => {
-        const fetchOpenports = () => {
-          fetch("http://localhost:80/metric/openports")
+  function OpenportsDisplay({ hostname }) {
+    const [openportsData, setOpenportsData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/openports?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setOpenportsData(data))
           .catch(() => setOpenportsData([]));
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
+
+    return (
+      <div>
+        {openportsData.length > 0 &&
+          openportsData.at(-1).openports.map((port, index) => (
+            <p key={index}>{port}</p>
+          ))
         }
+      </div>
+    );
+  }
 
-        fetchOpenports();
-        const interval = setInterval(fetchOpenports, 1000);
-
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {openportsData.length > 0 &&
-            openportsData.at(-1).openports.map((port, index) => (
-              <p key={index}>{port}</p>
-            )
-          )}
-        </div>
-      );
-    }
-
-
-    function ProcessesDisplay() {
-      const [processesData, setProcessesData] = useState([]);
-
-      useEffect(() => {
-        const fetchProcesses = () => {
-          fetch("http://localhost:80/metric/processes")
+  function ProcessesDisplay({ hostname }) {
+    const [processesData, setProcessesData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/processes?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setProcessesData(data))
           .catch(() => setProcessesData([]));
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
+
+    return (
+      <div>
+        {processesData.length > 0 &&
+          processesData.at(-1).processes.map((proc, index) => (
+            <p key={index}>{proc}</p>
+          ))
         }
+      </div>
+    );
+  }
 
-        fetchProcesses();
-        const interval = setInterval(fetchProcesses, 1000);
-
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {processesData.length > 0 &&
-            processesData.at(-1).processes.map((proc, index) => (
-              <p key={index}>{proc}</p>
-            ))
-          }
-        </div>
-      );
-    }
-
-
-    function ConnectionsDisplay() {
-      const [connectionsData, setConnectionsData] = useState([]);
-
-      useEffect(() => {
-        const fetchConnections = () => {
-          fetch("http://localhost:80/metric/connections")
+  function ConnectionsDisplay({ hostname }) {
+    const [connectionsData, setConnectionsData] = useState([]);
+    useEffect(() => {
+      const fetch_ = () => {
+        fetch(`http://localhost:80/metric/connections?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => setConnectionsData(data))
           .catch(() => setConnectionsData([]));
+      };
+      fetch_();
+      const interval = setInterval(fetch_, 1000);
+      return () => clearInterval(interval);
+    }, [hostname]);
+
+    return (
+      <div>
+        {connectionsData.length > 0 &&
+          connectionsData.at(-1).connections.map((conn, index) => (
+            <p key={index}>{conn.remote_ip}:{conn.remote_port} → port local {conn.local_port}</p>
+          ))
         }
-
-        fetchConnections();
-        const interval = setInterval(fetchConnections, 1000);
-
-        return () => clearInterval(interval);
-      }, []);
-
-      return (
-        <div>
-          {connectionsData.length > 0 &&
-            connectionsData.at(-1).connections.map((conn, index) => (
-              <p key={index}>{conn.remote_ip}:{conn.remote_port} → port local {conn.local_port}</p>
-            ))
-          }
-        </div>
-      );
-    }
+      </div>
+    );
+  }
 
 
+  return (
+    <>
+      {/* Liste des machines avec badge online/offline */}
+      <div className="machines-list">
+        {machines.length === 0 && <p>Aucun agent détecté...</p>}
+        {machines.map(hostname => (
+          <button
+            key={hostname}
+            onClick={() => setSelectedMachine(hostname)}
+            style={{ fontWeight: selectedMachine === hostname ? "bold" : "normal" }}
+          >
+            {hostname} {machineStatus[hostname] ? "● online" : "○ offline"}
+          </button>
+        ))}
+      </div>
 
-          if (agentOnline === null) return <h1>Connection en cours...</h1>;
+      {/* Métriques de la machine sélectionnée */}
+      {selectedMachine && (
+        <>
+          <h2>{selectedMachine}</h2>
 
-          if (agentOnline === false) return <h1>Agent injoignable</h1>;
-
-          if (agentOnline === true)
-            return<> <div class="left-metrics">
-              <div class="ram metric">
-            <h2>Utilisation de la RAM (%)</h2>
-            <p><RamDisplay /></p>
+          <div className="left-metrics">
+            <div className="ram metric">
+              <h2>Utilisation de la RAM (%)</h2>
+              <RamDisplay hostname={selectedMachine} />
             </div>
-            <div class="cpu metric">
-            <h2>Utilisation CPU (%)</h2>
-            <CpuDisplay />
+            <div className="cpu metric">
+              <h2>Utilisation CPU (%)</h2>
+              <CpuDisplay hostname={selectedMachine} />
             </div>
+          </div>
 
-            </div>
-            <div class="ports metric">
+          <div className="ports metric">
             <h2>Affichage des ports ouverts</h2>
-            <OpenportsDisplay />
-            </div>
+            <OpenportsDisplay hostname={selectedMachine} />
+          </div>
 
-            <div class="Disk">
+          <div className="Disk">
             <h2>Affichage de l'utilisation du disque</h2>
-            <DiskUsage />
-            </div>
+            <DiskUsage hostname={selectedMachine} />
+          </div>
 
-            <div class="processes metric">
+          <div className="processes metric">
             <h2>Processus en cours</h2>
-            <ProcessesDisplay />
-            </div>
+            <ProcessesDisplay hostname={selectedMachine} />
+          </div>
 
-            <div class="connections metric">
+          <div className="connections metric">
             <h2>Connexions actives</h2>
-            <ConnectionsDisplay />
-            </div>
-
-
-
-            </>
-
-
-
+            <ConnectionsDisplay hostname={selectedMachine} />
+          </div>
+        </>
+      )}
+    </>
+  );
 }
