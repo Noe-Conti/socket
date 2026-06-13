@@ -4,7 +4,7 @@ import "./parc-style.css"
 
 function RamDisplay({ hostname }) {
   const [data, setData] = useState([]);
-  useEffect(() => {
+  useEffect(() => { //Récupère la data auprès du backend toutes les secondes 
     const fetch_ = () => fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
@@ -14,6 +14,7 @@ function RamDisplay({ hostname }) {
   return (
     <div className="metric-card">
       <h3>RAM</h3>
+      {/* Si data présente, afficher */}
       <p className="metric-value">{data.length > 0 ? `${data.at(-1).ram_pourcentage} %` : "—"}</p>
     </div>
   );
@@ -110,11 +111,16 @@ function ConnectionsDisplay({ hostname }) {
 }
 
 
+
+//************************************ */
+//Affichage des valeurs en menu
+//************************************ */
+
 export default function Parc() {
 
   const [machines, setMachines] = useState([]);
-  const [machineStatus, setMachineStatus] = useState({});
-  const [selectedMachine, setSelectedMachine] = useState(null);
+  const [machineStatus, setMachineStatus] = useState({}); //
+  const [selectedMachine, setSelectedMachine] = useState(null); //Choix de la machine à afficher
 
   useEffect(() => {
     const fetchMachines = () => {
@@ -128,6 +134,8 @@ export default function Parc() {
     return () => clearInterval(interval);
   }, []);
 
+
+//Vérifie toutes les secondes si agent online
   useEffect(() => {
     if (machines.length === 0) return;
     const checkAll = () => {
@@ -151,14 +159,13 @@ export default function Parc() {
     return () => clearInterval(interval);
   }, [machines]);
 
-
+// Affichage des agents et leurs statuts
   return (
     <div className="parc-layout">
 
       <div className="machines-list">
         <h2>Machines</h2>
-        {machines.length === 0
-          ? <p className="no-agent">Aucun agent détecté…</p>
+        {machines.length === 0 ? <p className="no-agent">Aucun agent détecté…</p>
           : machines.map(hostname => (
             <button
               key={hostname}
@@ -173,8 +180,7 @@ export default function Parc() {
           ))
         }
       </div>
-
-      {!selectedMachine
+      {!selectedMachine //Affichage conditionnel de la machine selectionnée
         ? <p className="no-selection">Sélectionnez une machine pour voir ses métriques.</p>
         : (
           <div className="metrics-area">
