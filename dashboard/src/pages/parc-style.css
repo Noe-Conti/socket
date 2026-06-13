@@ -21,10 +21,9 @@
   background-color: #272727;
   color: white;
   border: none;
-  border-radius: 6px;
+
   padding: 10px 14px;
   text-align: left;
-  cursor: pointer;
   font-size: 0.95rem;
   display: flex;
   align-items: center;
@@ -46,7 +45,6 @@
   font-size: 0.78rem;
   font-weight: bold;
   padding: 2px 8px;
-  border-radius: 999px;
   white-space: nowrap;
 }
 

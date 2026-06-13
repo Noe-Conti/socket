@@ -174,7 +174,7 @@ export default function Parc() {
             >
               <span>{hostname}</span>
               <span className={`status-badge ${machineStatus[hostname] ? "online" : "offline"}`}>
-                {machineStatus[hostname] ? "● online" : "○ offline"}
+                {machineStatus[hostname] ? "online" : "offline"}
               </span>
             </button>
           ))
