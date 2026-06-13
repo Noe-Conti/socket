@@ -80,19 +80,21 @@ services:
     hostname: PC-24-98ML
 
   serveur1:
-      build: 
-        context: ./agent
-        dockerfile: Dockerfile
+      build:
+        context: ./agent/
+        dockerfile: serveur-ftp/dockerfile
       environment:
         - BACKEND_URL=http://backend:80
       restart: always
       depends_on:
         - backend
-      hostname: SRV-PROD
+      ports: 
+        - "21:21"
+      hostname: SRV-FTP
 
   serveur2:
       build: 
-        context: ./agent
+        context: ./agent/
         dockerfile: Dockerfile
       environment:
         - BACKEND_URL=http://backend:80
