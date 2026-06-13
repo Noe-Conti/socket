@@ -55,6 +55,7 @@ services:
     restart: always
     depends_on:
       - backend
+    hostname: PC-25-87UP
 
   poste2:
       build: 
@@ -65,5 +66,40 @@ services:
       restart: always
       depends_on:
         - backend
+      hostname: PC-26-8YUC
+
+  poste3:
+    build: 
+      context: ./agent
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://backend:80
+    restart: always
+    depends_on:
+      - backend
+    hostname: PC-24-98ML
+
+  serveur1:
+      build: 
+        context: ./agent
+        dockerfile: Dockerfile
+      environment:
+        - BACKEND_URL=http://backend:80
+      restart: always
+      depends_on:
+        - backend
+      hostname: SRV-PROD
+
+  serveur2:
+      build: 
+        context: ./agent
+        dockerfile: Dockerfile
+      environment:
+        - BACKEND_URL=http://backend:80
+      restart: always
+      depends_on:
+        - backend
+      hostname: SRV-TEST
+
 volumes:
   mongo_data:
