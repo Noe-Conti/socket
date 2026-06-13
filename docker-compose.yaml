@@ -52,7 +52,7 @@ services:
     environment:
       - BACKEND_URL=http://backend:80
 
-    restart: always
+    restart: always 
     depends_on:
       - backend
     hostname: PC-25-87UP
