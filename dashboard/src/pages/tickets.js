@@ -276,7 +276,7 @@ function ListeTickets() {
 
 
 export default function Tickets() {
-  const [onglet, setOnglet] = useState("alertes");
+  const [onglet, setOnglet] = useState("tickets");
 
   return (
     <div className="tickets-layout">
