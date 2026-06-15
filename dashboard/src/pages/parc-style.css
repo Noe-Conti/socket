@@ -1,0 +1,160 @@
+/* Liste des machines */
+.machines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 220px;
+  padding-right: 24px;
+  border-right: 2px solid #e0e0e0;
+}
+
+.machines-list h2 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #888;
+  margin: 0 0 8px 0;
+  text-decoration: none;
+}
+
+.machine-card {
+  background-color: #272727;
+  color: white;
+  border: none;
+
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  transition: background-color 0.15s;
+}
+
+.machine-card:hover {
+  background-color: #3a3a3a;
+}
+
+.machine-card.selected {
+  background-color: #444;
+  outline: 2px solid #aaa;
+}
+
+.status-badge {
+  font-size: 0.78rem;
+  font-weight: bold;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.status-badge.online {
+  background-color: #2e7d32;
+  color: #c8e6c9;
+}
+
+.status-badge.offline {
+  background-color: #555;
+  color: #bbb;
+}
+
+.no-agent {
+  color: #999;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* Zone de métriques */
+.parc-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  width: 100%;
+}
+
+.metrics-area {
+  flex: 1;
+  padding-left: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.metrics-area > h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.2rem;
+  color: #272727;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.metric-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.metric-card h3 {
+  margin: 0 0 6px 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+  font-weight: 600;
+}
+
+.metric-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #272727;
+  margin: 0;
+}
+
+/* Listes (ports, processus, connexions) */
+.metric-card-list {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 18px;
+}
+
+.metric-card-list h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+  font-weight: 600;
+}
+
+.metric-card-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 180px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-card-list ul li {
+  font-size: 0.85rem;
+  color: #333;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: #efefef;
+  font-family: monospace;
+}
+
+.no-selection {
+  color: #aaa;
+  font-style: italic;
+  padding-left: 28px;
+  align-self: center;
+}
