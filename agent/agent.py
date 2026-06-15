@@ -22,7 +22,7 @@ def ramPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem")
 
 
 def cpuPush():
@@ -33,7 +33,7 @@ def cpuPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem")
 
 
 def openportsPush():
@@ -52,7 +52,7 @@ def openportsPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem")
 
 
 def diskPush():
@@ -65,7 +65,7 @@ def diskPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem")
 
 
 def processesPush():
@@ -80,7 +80,7 @@ def processesPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem") #Vérifie l'authenticité du serveur, et requests gère le chiffrement dès que la handshake est établie
 
 
 def connectionsPush():
@@ -99,7 +99,7 @@ def connectionsPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj)
+    requests.post(url, json=myobj, verify="/certs/cert.pem")
 
 
 print(f"Agent démarré sur {HOSTNAME} ({IP})")

@@ -5,7 +5,7 @@ import "./parc-style.css"
 function RamDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => { //Récupère la data auprès du backend toutes les secondes 
-    const fetch_ = () => fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/ram?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -23,7 +23,7 @@ function RamDisplay({ hostname }) {
 function CpuDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    const fetch_ = () => fetch(`http://localhost:80/metric/cpu?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/cpu?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -40,7 +40,7 @@ function CpuDisplay({ hostname }) {
 function DiskDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    const fetch_ = () => fetch(`http://localhost:80/metric/disk?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/disk?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -59,7 +59,7 @@ function DiskDisplay({ hostname }) {
 function OpenportsDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    const fetch_ = () => fetch(`http://localhost:80/metric/openports?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/openports?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -77,7 +77,7 @@ function OpenportsDisplay({ hostname }) {
 function ProcessesDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    const fetch_ = () => fetch(`http://localhost:80/metric/processes?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/processes?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -95,7 +95,7 @@ function ProcessesDisplay({ hostname }) {
 function ConnectionsDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
-    const fetch_ = () => fetch(`http://localhost:80/metric/connections?hostname=${hostname}`)
+    const fetch_ = () => fetch(`https://localhost:443/metric/connections?hostname=${hostname}`)
       .then(r => r.json()).then(setData).catch(() => setData([]));
     fetch_();
     const t = setInterval(fetch_, 1000);
@@ -124,7 +124,7 @@ export default function Parc() {
 
   useEffect(() => {
     const fetchMachines = () => {
-      fetch("http://localhost:80/metric/machines")
+      fetch("https://localhost:443/metric/machines")
         .then(res => res.json())
         .then(data => setMachines(data))
         .catch(() => setMachines([]));
@@ -140,7 +140,7 @@ export default function Parc() {
     if (machines.length === 0) return;
     const checkAll = () => {
       machines.forEach(hostname => {
-        fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
+        fetch(`https://localhost:443/metric/ram?hostname=${hostname}`)
           .then(res => res.json())
           .then(data => {
             if (data.length === 0) {
