@@ -1,84 +1,20 @@
-/*********************************/
-/* GÉNÉRAL */
-/*********************************/
-
-header{
-
-    display: flex;
-    justify-content: center;
-    background-color: #272727;
-    color: white;
-
-    width: fit-content;
-    max-width: 18vw;
-}
-
 main{
     display: flex;
-    flex-direction: row;
-    
-    height: 100vh;
-    width: 100vw;
-    
+    flex-direction: column;
 }
-
 
 h2{
     text-decoration: underline;
 }
 
-
-/*********************************/
-/* NAVIGATION */
-/*********************************/
-
-
-.title{
-    font-size: large;
-    border-bottom: solid;
-    border-width: 2px;
-    margin: 5%;
-    padding-bottom: 5%;
-}
-
-.nav{
-    padding: 0;
-    margin: 0;
-    overflow: hidden;
-}
-
-.nav a{
-    text-decoration: none;
+header{
+    padding-left: 5%;
+    display: flex;
+    background-color: #272727;
     color: white;
 }
 
-.nav li:hover{
-    background-color: grey;
-}
-nav ul, li{
-    margin: 0;
-    padding: 0;
-}
-
-
-nav ul{
-
-    list-style: none;
-    margin-top: 20%;
-    width: 100%;
-}
-
-nav li{
-    width: 100%;
-    margin: 0 10% 0 0;
-    padding: 5% 5% 5% 10% ;
-}
-
-/*********************************/
-/* CONTENU */
-/*********************************/
-
-.content{
+.metric-container{
     margin: 3%;
     display: flex;
     flex-direction: row;
@@ -86,6 +22,8 @@ nav li{
     height: auto;
 }
 
-.ports {
-    margin-left: 50%;
+.metric{
+    border: solid;
+    margin: 1%;
 }
+
