@@ -19,6 +19,7 @@ async def surveillance_loop():
             _verifier_ram(machine)
             _verifier_cpu(machine)
             _verifier_disk(machine)
+            _verifier_ports(machine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -108,6 +109,18 @@ def _creer_alerte(machine: str, type_: str, valeur: float):
             "statut":               "active",
             "timestamp_resolution": None,
         })
+
+_ports_precedents: dict = {}
+
+def _verifier_ports(machine: str):
+    données = [r for r in openports if r.hostname == machine]
+    if not données: return
+    ports_actuels = set(données[-1].openports)
+    ports_avant   = _ports_precedents.get(machine)
+    if ports_avant is not None:
+        for port in ports_actuels - ports_avant:
+            _creer_alerte(machine, f"port {port}", port)
+    _ports_precedents[machine] = ports_actuels
 
 def _verifier_ram(machine: str):
     données = [r for r in ram_usage if r.hostname == machine]
