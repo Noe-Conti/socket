@@ -19,9 +19,9 @@ export default function Dashboard() {
   // Fetch toutes les données toutes les 5s
   useEffect(() => {
     function charger() {
-      fetch("http://localhost:80/metric/machines").then(r => r.json()).then(setMachines).catch(() => {});
-      fetch("http://localhost:80/alertes").then(r => r.json()).then(setAlertes).catch(() => {});
-      fetch("http://localhost:80/tickets").then(r => r.json()).then(setTickets).catch(() => {});
+      fetch("https://localhost:443/metric/machines").then(r => r.json()).then(setMachines).catch(() => {});
+      fetch("https://localhost:443/alertes").then(r => r.json()).then(setAlertes).catch(() => {});
+      fetch("https://localhost:443/tickets").then(r => r.json()).then(setTickets).catch(() => {});
     }
     charger();
     const t = setInterval(charger, 5000);
@@ -33,7 +33,7 @@ export default function Dashboard() {
     if (machines.length === 0) return;
     const checkAll = () => {
       machines.forEach(hostname => {
-        fetch(`http://localhost:80/metric/ram?hostname=${hostname}`)
+        fetch(`https://localhost:443/metric/ram?hostname=${hostname}`)
           .then(r => r.json())
           .then(data => {
             if (!data.length) { setMachineStatus(p => ({ ...p, [hostname]: false })); return; }
