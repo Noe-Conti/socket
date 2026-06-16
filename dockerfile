@@ -2,10 +2,10 @@ FROM python:latest
 
 WORKDIR /app
 
+COPY requirements.txt .
+RUN pip install --upgrade pip --no-cache-dir -r requirements.txt
 COPY . /app
 
-RUN pip install --upgrade pip --no-cache-dir fastapi torch uvicorn pydantic
+EXPOSE 443
 
-EXPOSE 80
-
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80", "--reload"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443", "--ssl-keyfile", "certs/key.pem", "--ssl-certfile", "certs/cert.pem"]

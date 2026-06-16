@@ -1,0 +1,184 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+/* Ligne de grandes cartes résumé */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  background: #272727;
+  color: white;
+  border-radius: 8px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-card .stat-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #aaa;
+}
+
+.stat-card .stat-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-card .stat-sub {
+  font-size: 0.82rem;
+  color: #aaa;
+}
+
+.stat-card.alerte  { border-left: 4px solid #c62828; }
+.stat-card.ticket  { border-left: 4px solid #1565c0; }
+.stat-card.machine { border-left: 4px solid #2e7d32; }
+
+/* Ligne de détail */
+.detail-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detail-card {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px 20px;
+}
+
+.detail-card h3 {
+  margin: 0 0 14px 0;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #888;
+}
+
+.breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.breakdown-label {
+  font-size: 0.85rem;
+  width: 90px;
+  color: #444;
+  text-transform: capitalize;
+}
+
+.breakdown-bar-wrap {
+  flex: 1;
+  background: #e0e0e0;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.breakdown-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.4s;
+}
+
+.breakdown-count {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #272727;
+  min-width: 24px;
+  text-align: right;
+}
+
+/* Couleurs barres tickets */
+.bar-ouvert   { background: #1565c0; }
+.bar-en_cours { background: #e65100; }
+.bar-résolu   { background: #2e7d32; }
+
+/* Couleurs barres alertes */
+.bar-ram  { background: #c62828; }
+.bar-cpu  { background: #e65100; }
+.bar-disk { background: #6a1b9a; }
+
+/* Dernières alertes actives */
+.alertes-recentes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.alerte-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-left: 3px solid #c62828;
+  border-radius: 5px;
+  font-size: 0.85rem;
+}
+
+.alerte-mini .type-badge {
+  font-size: 0.68rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #272727;
+  color: white;
+}
+
+.alerte-mini .mini-machine { font-weight: 600; }
+.alerte-mini .mini-valeur  { color: #888; flex: 1; }
+.alerte-mini .mini-date    { color: #bbb; font-size: 0.75rem; white-space: nowrap; }
+
+.empty-dash {
+  color: #bbb;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Machines online/offline */
+.machines-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.machine-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  border: 1px solid #e0e0e0;
+  background: white;
+}
+
+.machine-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.machine-pill .dot.online  { background: #2e7d32; }
+.machine-pill .dot.offline { background: #bbb; }
