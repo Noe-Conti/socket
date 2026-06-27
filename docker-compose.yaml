@@ -138,9 +138,9 @@ services:
     networks:
       - lan_serveurs
 
-  firewall:
-    container_name: firewall
-    build: ./firewall
+  filtrage:
+    container_name: filtrage
+    build: ./filtrage
     cap_add:
       - NET_ADMIN
     network_mode: host
