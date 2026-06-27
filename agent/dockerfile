@@ -1,9 +1,10 @@
-FROM python:3.11-slim
+FROM python:latest
+
+RUN apt update -y && apt upgrade -y
+RUN apt install iputils-ping -y
+RUN pip install --upgrade pip --no-cache-dir psutil requests
 
 WORKDIR /app
-
-
-RUN pip install psutil requests
 
 COPY agent.py .
 
