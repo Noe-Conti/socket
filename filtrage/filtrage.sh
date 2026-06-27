@@ -21,7 +21,7 @@ iptables -A DOCKER-USER -s $LAN_SERVEURS -d $LAN_ADMIN -j DROP
 # Connexions qui ne correspondent pas aux règles précédentes sont transférées au reste des règles automatiques docker
 iptables -A DOCKER-USER -j RETURN
 
-
-
+#Laisse le conteneur tourner
+tail -f /dev/null
 
 
