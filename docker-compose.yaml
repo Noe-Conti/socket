@@ -143,7 +143,11 @@ services:
     build: ./filtrage
     cap_add:
       - NET_ADMIN
-    network_mode: host
+
+    #Utilise le "namespace" de l'hote, pas le sien. 
+    #Permet que les règles IPtables s'appliquent au réseau hôte, et pas au conteneur lui même
+    network_mode: host 
+    
     restart: always
     depends_on:
       - backend
