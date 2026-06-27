@@ -64,7 +64,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/cert.pem:/certs/cert.pem
+      - ./certs/ca.crt:/certs/ca.crt
+      - ./certs/agent.crt:/certs/agent.crt
+      - ./certs/agent.key:/certs/agent.key
     restart: always
     depends_on:
       - backend
@@ -80,7 +82,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/cert.pem:/certs/cert.pem
+      - ./certs/ca.crt:/certs/ca.crt
+      - ./certs/agent.crt:/certs/agent.crt
+      - ./certs/agent.key:/certs/agent.key
     restart: always
     depends_on:
       - backend
@@ -96,7 +100,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/cert.pem:/certs/cert.pem
+      - ./certs/ca.crt:/certs/ca.crt
+      - ./certs/agent.crt:/certs/agent.crt
+      - ./certs/agent.key:/certs/agent.key
     restart: always
     depends_on:
       - backend
@@ -112,7 +118,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/cert.pem:/certs/cert.pem
+      - ./certs/ca.crt:/certs/ca.crt
+      - ./certs/agent.crt:/certs/agent.crt
+      - ./certs/agent.key:/certs/agent.key
     restart: always
     depends_on:
       - backend
@@ -130,7 +138,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/cert.pem:/certs/cert.pem
+      - ./certs/ca.crt:/certs/ca.crt
+      - ./certs/agent.crt:/certs/agent.crt
+      - ./certs/agent.key:/certs/agent.key
     restart: always
     depends_on:
       - backend

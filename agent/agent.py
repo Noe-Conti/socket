@@ -13,6 +13,9 @@ except Exception:
 
 BACKEND_URL = os.environ["BACKEND_URL"]
 
+CA_CERT   = "/certs/ca.crt"
+AGENT_CERT = ("/certs/agent.crt", "/certs/agent.key")
+
 
 def ramPush():
     ram = psutil.virtual_memory()
@@ -22,7 +25,7 @@ def ramPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem")
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
 def cpuPush():
@@ -33,7 +36,7 @@ def cpuPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem")
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
 def openportsPush():
@@ -52,7 +55,7 @@ def openportsPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem")
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
 def diskPush():
@@ -65,7 +68,7 @@ def diskPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem")
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
 def processesPush():
@@ -80,7 +83,7 @@ def processesPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem") #Vérifie l'authenticité du serveur, et requests gère le chiffrement dès que la handshake est établie
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT) #Vérifie l'authenticité du serveur, et requests gère le chiffrement dès que la handshake est établie
 
 
 def connectionsPush():
@@ -99,7 +102,7 @@ def connectionsPush():
         'hostname': HOSTNAME,
         'ip': IP
     }
-    requests.post(url, json=myobj, verify="/certs/cert.pem")
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
 print(f"Agent démarré sur {HOSTNAME} ({IP})")
