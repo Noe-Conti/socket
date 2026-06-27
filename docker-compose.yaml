@@ -41,8 +41,8 @@ services:
       - lan_admin
 
   frontend:
+    container_name: frontend
     build: ./dashboard
-    container_name: react
     restart: always
     ports:
       - "3000:3000"
@@ -57,6 +57,7 @@ services:
 
 #Machines simulées sur lesquelles l'agent tourne
   poste1:
+    container_name: poste1
     build:
       context: ./agent
       dockerfile: Dockerfile
@@ -72,6 +73,7 @@ services:
       - lan_postes
 
   poste2:
+    container_name: poste2
     build:
       context: ./agent
       dockerfile: Dockerfile
@@ -87,6 +89,7 @@ services:
       - lan_postes
 
   poste3:
+    container_name: poste3
     build:
       context: ./agent
       dockerfile: Dockerfile
@@ -102,6 +105,7 @@ services:
       - lan_postes
 
   serveur1:
+    container_name: serveur-ftp
     build:
       context: ./agent/
       dockerfile: serveur-ftp/dockerfile
@@ -119,6 +123,7 @@ services:
       - lan_serveurs
 
   serveur2:
+    container_name: serveur-test
     build:
       context: ./agent/
       dockerfile: Dockerfile
@@ -134,6 +139,7 @@ services:
       - lan_serveurs
 
   firewall:
+    container_name: firewall
     build: ./firewall
     cap_add:
       - NET_ADMIN
