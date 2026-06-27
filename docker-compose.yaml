@@ -133,6 +133,17 @@ services:
     networks:
       - lan_serveurs
 
+  firewall:
+    build: ./firewall
+    cap_add:
+      - NET_ADMIN
+    network_mode: host
+    restart: always
+    depends_on:
+      - backend
+
+      
+
 volumes:
   mongo_data:
 
