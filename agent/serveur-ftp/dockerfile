@@ -1,5 +1,9 @@
 FROM python:3.11
 
+RUN apt update -y && apt upgrade -y
+RUN apt install vsftpd -y
+RUN pip install psutil requests
+
 WORKDIR /app
 
 COPY agent.py .
@@ -7,8 +11,5 @@ COPY serveur-ftp/srv-script.sh .
 
 RUN chmod +x ./srv-script.sh
 
-RUN apt update && apt upgrade
-RUN apt install vsftpd -y
-RUN pip install psutil requests
 
 CMD ["./srv-script.sh"] 
