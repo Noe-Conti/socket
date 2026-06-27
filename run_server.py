@@ -1,3 +1,4 @@
+#Permet de passer plus de paramètres au backend lors de son exécution
 import ssl
 import uvicorn
 
