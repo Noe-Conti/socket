@@ -100,9 +100,9 @@ services:
     environment:
       - BACKEND_URL=https://backend:443
     volumes:
-      - ./certs/ca.crt:/certs/ca.crt
-      - ./certs/agent.crt:/certs/agent.crt
-      - ./certs/agent.key:/certs/agent.key
+      - ./certs/ca.crt:/certs/ca.crt #Certificat de CA public
+      - ./certs/agent.crt:/certs/agent.crt #Certificat client signé par CA
+      - ./certs/agent.key:/certs/agent.key #Clé privée de l'agent
     restart: always
     depends_on:
       - backend
