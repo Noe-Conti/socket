@@ -1,10 +1,33 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
+from pymongo import MongoClient
 import asyncio
 import uuid
+
+client = MongoClient("mongodb://admin:password@mongo_db:27017/")
+db = client["socketdb"]
+
+col_ram         = db["ram"]
+col_cpu         = db["cpu"]
+col_openports   = db["openports"]
+col_disk        = db["disk"]
+col_processes   = db["processes"]
+col_connections = db["connections"]
+col_alertes     = db["alertes"]
+col_tickets     = db["tickets"]
+
+
+def clean(doc):
+    if doc and "_id" in doc:
+        doc["_id"] = str(doc["_id"])
+    return doc
+
+def clean_list(docs):
+    return [clean(doc) for doc in docs]
+
 
 SEUILS = {
     "ram":  80.0,
@@ -12,10 +35,12 @@ SEUILS = {
     "disk": 85.0,
 }
 
+
 async def surveillance_loop():
     while True:
         await asyncio.sleep(5)
-        for machine in list(known_machines):
+        machines = col_ram.distinct("hostname")
+        for machine in machines:
             _verifier_ram(machine)
             _verifier_cpu(machine)
             _verifier_disk(machine)
@@ -84,29 +109,21 @@ class connections(BaseModel):
     ip: str = None
 
 
-ram_usage = []
-cpu_usage = []
-openports = []
-disk_usage = []
-processes_list = []
-connections_list = []
-
-known_machines = set()
-
-alertes: list = []
-
-
 def _alerte_active_existe(machine: str, type_: str) -> bool:
-    return any(a["machine"] == machine and a["type"] == type_ and a["statut"] == "active" for a in alertes)
+    return col_alertes.find_one({
+        "machine": machine,
+        "type": type_,
+        "statut": "active"
+    }) is not None
 
 def _creer_alerte(machine: str, type_: str, valeur: float):
     if not _alerte_active_existe(machine, type_):
-        alertes.append({
+        col_alertes.insert_one({
             "id":                   str(uuid.uuid4()),
             "type":                 type_,
             "machine":              machine,
             "valeur":               valeur,
-            "seuil":                SEUILS[type_],
+            "seuil":                SEUILS.get(type_, 0),
             "timestamp":            datetime.now(timezone.utc).isoformat(),
             "statut":               "active",
             "timestamp_resolution": None,
@@ -115,9 +132,9 @@ def _creer_alerte(machine: str, type_: str, valeur: float):
 _ports_precedents: dict = {}
 
 def _verifier_ports(machine: str):
-    données = [r for r in openports if r.hostname == machine]
-    if not données: return
-    ports_actuels = set(données[-1].openports)
+    doc = col_openports.find_one({"hostname": machine}, sort=[("_id", -1)])
+    if not doc: return
+    ports_actuels = set(doc["openports"])
     ports_avant   = _ports_precedents.get(machine)
     if ports_avant is not None:
         for port in ports_actuels - ports_avant:
@@ -125,129 +142,119 @@ def _verifier_ports(machine: str):
     _ports_precedents[machine] = ports_actuels
 
 def _verifier_ram(machine: str):
-    données = [r for r in ram_usage if r.hostname == machine]
-    if not données: return
-    val = données[-1].ram_pourcentage
+    doc = col_ram.find_one({"hostname": machine}, sort=[("_id", -1)])
+    if not doc: return
+    val = doc["ram_pourcentage"]
     if val > SEUILS["ram"]:
         _creer_alerte(machine, "ram", val)
 
 def _verifier_cpu(machine: str):
-    données = [r for r in cpu_usage if r.hostname == machine]
-    if not données: return
-    val = données[-1].cpu_pourcentage
+    doc = col_cpu.find_one({"hostname": machine}, sort=[("_id", -1)])
+    if not doc: return
+    val = doc["cpu_pourcentage"]
     if val > SEUILS["cpu"]:
         _creer_alerte(machine, "cpu", val)
 
 def _verifier_disk(machine: str):
-    données = [r for r in disk_usage if r.hostname == machine]
-    if not données: return
-    val = données[-1].disk_pourcentage
+    doc = col_disk.find_one({"hostname": machine}, sort=[("_id", -1)])
+    if not doc: return
+    val = doc["disk_pourcentage"]
     if val > SEUILS["disk"]:
         _creer_alerte(machine, "disk", val)
 
 
-#### RAM #####
+#### RAM ####
 @app.post("/metric/ram")
 def post_ram_info(item: ram):
-    #Si hostname existe (non None) on l'ajoute à known_machines 
-    if item.hostname:
-        known_machines.add(item.hostname)
-    item.time_stamp = datetime.now(timezone.utc) #Timezone utc pour éviter les écarts de fuseaux horraires
-    ram_usage.append(item)
+    item.time_stamp = datetime.now(timezone.utc)
+    doc = item.model_dump()
+    doc["time_stamp"] = item.time_stamp.isoformat()
+    col_ram.insert_one(doc)
     return item
 
 @app.get("/metric/ram")
 def get_all_ram(hostname: str = None):
-    #Si get fait avec hostname particulier, on return que ce qui correspond
-    #Sinon on return tout
-    if hostname:
-        return [r for r in ram_usage if r.hostname == hostname]
-    return ram_usage
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_ram.find(filtre)))
 
 
-#### CPU #####
+#### CPU ####
 @app.post("/metric/cpu")
 def post_cpu_info(item: cpu):
-    if item.hostname:
-        known_machines.add(item.hostname)
-    cpu_usage.append(item)
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc).isoformat()
+    col_cpu.insert_one(doc)
     return item
 
 @app.get("/metric/cpu")
 def get_all_cpu(hostname: str = None):
-    if hostname:
-        return [r for r in cpu_usage if r.hostname == hostname]
-    return cpu_usage
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_cpu.find(filtre)))
 
 
 #### Open Ports ####
 @app.post("/metric/openports")
 def post_openports_info(item: ports):
-    if item.hostname:
-        known_machines.add(item.hostname)
-    openports.append(item)
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc).isoformat()
+    col_openports.insert_one(doc)
     return item
 
 @app.get("/metric/openports")
 def get_all_openports(hostname: str = None):
-    if hostname:
-        return [r for r in openports if r.hostname == hostname]
-    return openports
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_openports.find(filtre)))
 
 
 #### Disk ####
 @app.post("/metric/disk")
 def post_disk_info(item: disk):
-    if item.hostname:
-        known_machines.add(item.hostname)
-    disk_usage.append(item)
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc).isoformat()
+    col_disk.insert_one(doc)
     return item
 
 @app.get("/metric/disk")
 def get_disk_usage(hostname: str = None):
-    if hostname:
-        return [r for r in disk_usage if r.hostname == hostname]
-    return disk_usage
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_disk.find(filtre)))
 
 
 #### Processes ####
 @app.post("/metric/processes")
 def post_processes_info(item: processes):
-    if item.hostname:
-        known_machines.add(item.hostname)
-    processes_list.append(item)
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc).isoformat()
+    col_processes.insert_one(doc)
     return item
 
 @app.get("/metric/processes")
 def get_all_processes(hostname: str = None):
-    if hostname:
-        return [r for r in processes_list if r.hostname == hostname]
-    return processes_list
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_processes.find(filtre)))
 
 
 #### Connections ####
 @app.post("/metric/connections")
 def post_connections_info(item: connections):
-    if item.hostname:
-        known_machines.add(item.hostname)
-    connections_list.append(item)
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc).isoformat()
+    col_connections.insert_one(doc)
     return item
 
 @app.get("/metric/connections")
 def get_all_connections(hostname: str = None):
-    if hostname:
-        return [r for r in connections_list if r.hostname == hostname]
-    return connections_list
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_connections.find(filtre)))
 
 
 #### Machines ####
 @app.get("/metric/machines")
 def get_machines():
-    return list(known_machines)
+    return col_ram.distinct("hostname")
 
 
 #### Tickets ####
-
 class TicketCreate(BaseModel):
     titre: str
     description: str
@@ -259,12 +266,8 @@ class CommentaireBody(BaseModel):
     commentaire: str
 
 class StatutBody(BaseModel):
-    statut: str   # "ouvert", "en_cours", "résolu"
+    statut: str
     auteur: str
-
-
-tickets: list = []
-
 
 def _entree_historique(auteur: str, action: str) -> dict:
     return {
@@ -272,7 +275,6 @@ def _entree_historique(auteur: str, action: str) -> dict:
         "action": action,
         "date":   datetime.now(timezone.utc).isoformat(),
     }
-
 
 @app.post("/tickets")
 def creer_ticket(body: TicketCreate):
@@ -290,13 +292,12 @@ def creer_ticket(body: TicketCreate):
             _entree_historique(body.ouvert_par, "Ticket ouvert")
         ],
     }
-    tickets.append(ticket)
-    return ticket
-
+    col_tickets.insert_one(ticket)
+    return clean(ticket)
 
 @app.post("/alertes/{alerte_id}/ticket")
 def creer_ticket_depuis_alerte(alerte_id: str, body: CommentaireBody):
-    alerte = next((a for a in alertes if a["id"] == alerte_id), None)
+    alerte = col_alertes.find_one({"id": alerte_id})
     if not alerte:
         return {"erreur": "Alerte introuvable"}
     ticket = {
@@ -314,64 +315,65 @@ def creer_ticket_depuis_alerte(alerte_id: str, body: CommentaireBody):
             _entree_historique(body.auteur, body.commentaire),
         ],
     }
-    tickets.append(ticket)
-    return ticket
-
+    col_tickets.insert_one(ticket)
+    return clean(ticket)
 
 @app.get("/tickets")
 def get_tickets(statut: str = None, machine: str = None):
-    result = tickets
-    if statut:
-        result = [t for t in result if t["statut"] == statut]
-    if machine:
-        result = [t for t in result if t["machine"] == machine]
-    return result
-
+    filtre = {}
+    if statut:  filtre["statut"]  = statut
+    if machine: filtre["machine"] = machine
+    return clean_list(list(col_tickets.find(filtre)))
 
 @app.get("/tickets/{ticket_id}")
 def get_ticket(ticket_id: str):
-    ticket = next((t for t in tickets if t["id"] == ticket_id), None)
+    ticket = col_tickets.find_one({"id": ticket_id})
     if not ticket:
         return {"erreur": "Ticket introuvable"}
-    return ticket
-
+    return clean(ticket)
 
 @app.post("/tickets/{ticket_id}/statut")
 def changer_statut(ticket_id: str, body: StatutBody):
-    ticket = next((t for t in tickets if t["id"] == ticket_id), None)
+    ticket = col_tickets.find_one({"id": ticket_id})
     if not ticket:
         return {"erreur": "Ticket introuvable"}
     ancien = ticket["statut"]
-    ticket["statut"] = body.statut
-    ticket["historique"].append(
-        _entree_historique(body.auteur, f"Statut changé : {ancien} → {body.statut}")
+    entree = _entree_historique(body.auteur, f"Statut changé : {ancien} → {body.statut}")
+    col_tickets.update_one(
+        {"id": ticket_id},
+        {"$set": {"statut": body.statut}, "$push": {"historique": entree}}
     )
-    return ticket
-
+    return clean(col_tickets.find_one({"id": ticket_id}))
 
 @app.post("/tickets/{ticket_id}/commentaire")
 def ajouter_commentaire(ticket_id: str, body: CommentaireBody):
-    ticket = next((t for t in tickets if t["id"] == ticket_id), None)
+    ticket = col_tickets.find_one({"id": ticket_id})
     if not ticket:
         return {"erreur": "Ticket introuvable"}
-    ticket["historique"].append(
-        _entree_historique(body.auteur, body.commentaire)
+    entree = _entree_historique(body.auteur, body.commentaire)
+    col_tickets.update_one(
+        {"id": ticket_id},
+        {"$push": {"historique": entree}}
     )
-    return ticket
+    return clean(col_tickets.find_one({"id": ticket_id}))
 
 
 #### Alertes ####
 @app.get("/alertes")
 def get_alertes(statut: str = None):
-    if statut:
-        return [a for a in alertes if a["statut"] == statut]
-    return alertes
+    filtre = {"statut": statut} if statut else {}
+    return clean_list(list(col_alertes.find(filtre)))
 
 @app.post("/alertes/{alerte_id}/resoudre")
 def resoudre_alerte(alerte_id: str):
-    for a in alertes:
-        if a["id"] == alerte_id and a["statut"] == "active":
-            a["statut"] = "résolue"
-            a["timestamp_resolution"] = datetime.now(timezone.utc).isoformat()
-            return a
-    return {"erreur": "Alerte introuvable ou déjà résolue"}
+    alerte = col_alertes.find_one({"id": alerte_id, "statut": "active"})
+    if not alerte:
+        return {"erreur": "Alerte introuvable ou déjà résolue"}
+    col_alertes.update_one(
+        {"id": alerte_id},
+        {"$set": {
+            "statut": "résolue",
+            "timestamp_resolution": datetime.now(timezone.utc).isoformat()
+        }}
+    )
+    return clean(col_alertes.find_one({"id": alerte_id}))
