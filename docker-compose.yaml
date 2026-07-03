@@ -124,8 +124,6 @@ services:
     restart: always
     depends_on:
       - backend
-    ports:
-      - "21:21"
     hostname: SRV-FTP
     networks:
       - lan_serveurs
