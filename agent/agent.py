@@ -108,10 +108,9 @@ def connectionsPush():
 print(f"Agent démarré sur {HOSTNAME} ({IP})")
 
 while True:
-    ramPush()
-    cpuPush()
-    openportsPush()
-    diskPush()
-    processesPush()
-    connectionsPush()
+    for push in (ramPush, cpuPush, openportsPush, diskPush, processesPush, connectionsPush):
+        try:
+            push()
+        except requests.exceptions.RequestException as e:
+            print(f"Erreur d'envoi vers le backend ({push.__name__}): {e}")
     time.sleep(3)
