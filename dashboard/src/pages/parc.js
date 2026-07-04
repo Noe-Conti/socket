@@ -92,6 +92,24 @@ function ProcessesDisplay({ hostname }) {
   );
 }
 
+function LogsDisplay({ hostname }) {
+  const [data, setData] = useState([]);
+  useEffect(() => {
+    const fetch_ = () => fetch(`https://localhost:443/metric/logs?hostname=${hostname}`)
+      .then(r => r.json()).then(setData).catch(() => setData([]));
+    fetch_();
+    const t = setInterval(fetch_, 1000);
+    return () => clearInterval(t);
+  }, [hostname]);
+  const lines = data.flatMap(d => d.logs).slice(-50);
+  return (
+    <div className="metric-card-list full-width">
+      <h3>Logs système ({lines.length})</h3>
+      <ul>{lines.map((l, i) => <li key={i}>{l}</li>)}</ul>
+    </div>
+  );
+}
+
 function ConnectionsDisplay({ hostname }) {
   const [data, setData] = useState([]);
   useEffect(() => {
@@ -194,6 +212,9 @@ export default function Parc() {
               <OpenportsDisplay hostname={selectedMachine} />
               <ProcessesDisplay hostname={selectedMachine} />
               <ConnectionsDisplay hostname={selectedMachine} />
+            </div>
+            <div className="metrics-grid">
+              <LogsDisplay hostname={selectedMachine} />
             </div>
           </div>
         )

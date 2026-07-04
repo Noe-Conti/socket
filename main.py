@@ -16,8 +16,12 @@ col_openports   = db["openports"]
 col_disk        = db["disk"]
 col_processes   = db["processes"]
 col_connections = db["connections"]
+col_logs        = db["logs"]
 col_alertes     = db["alertes"]
 col_tickets     = db["tickets"]
+
+# Purge automatique des logs de plus de 3 jours
+col_logs.create_index("time_stamp", expireAfterSeconds=3 * 24 * 60 * 60)
 
 
 def clean(doc):
@@ -45,6 +49,7 @@ async def surveillance_loop():
             _verifier_cpu(machine)
             _verifier_disk(machine)
             _verifier_ports(machine)
+            _verifier_logs(machine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -101,6 +106,11 @@ class connections(BaseModel):
     hostname: str = None
     ip: str = None
 
+class logs(BaseModel):
+    logs: list[str]
+    hostname: str = None
+    ip: str = None
+
 
 def _alerte_active_existe(machine: str, type_: str) -> bool:
     return col_alertes.find_one({
@@ -133,6 +143,30 @@ def _verifier_ports(machine: str):
         for port in ports_actuels - ports_avant:
             _creer_alerte(machine, f"port {port}", port)
     _ports_precedents[machine] = ports_actuels
+
+
+MOTS_SUSPECTS = ["error", "fail", "denied", "unauthorized", "refused", "invalid", "attack"]
+
+_logs_dernier_id: dict = {}
+
+def _verifier_logs(machine: str):
+    filtre = {"hostname": machine}
+    dernier_id = _logs_dernier_id.get(machine)
+    if dernier_id is not None:
+        filtre["_id"] = {"$gt": dernier_id}
+
+    docs = list(col_logs.find(filtre).sort("_id", 1))
+    if not docs: return
+
+    for doc in docs:
+        for ligne in doc.get("logs", []):
+            ligne_min = ligne.lower()
+            for mot in MOTS_SUSPECTS:
+                if mot in ligne_min:
+                    _creer_alerte(machine, f"log suspect ({mot})", 0)
+                    break
+
+    _logs_dernier_id[machine] = docs[-1]["_id"]
 
 def _verifier_ram(machine: str):
     doc = col_ram.find_one({"hostname": machine}, sort=[("_id", -1)])
@@ -239,6 +273,20 @@ def post_connections_info(item: connections):
 def get_all_connections(hostname: str = None):
     filtre = {"hostname": hostname} if hostname else {}
     return clean_list(list(col_connections.find(filtre)))
+
+
+#### Logs ####
+@app.post("/metric/logs")
+def post_logs_info(item: logs):
+    doc = item.model_dump()
+    doc["time_stamp"] = datetime.now(timezone.utc)  # type Date natif requis par l'index TTL
+    col_logs.insert_one(doc)
+    return item
+
+@app.get("/metric/logs")
+def get_all_logs(hostname: str = None):
+    filtre = {"hostname": hostname} if hostname else {}
+    return clean_list(list(col_logs.find(filtre)))
 
 
 #### Machines ####
