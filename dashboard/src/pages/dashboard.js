@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { API_URL } from "../config"
 import "./dashboard-style.css"
 
 function formatDate(iso) {
@@ -19,9 +20,9 @@ export default function Dashboard() {
   // Fetch toutes les données toutes les 5s
   useEffect(() => {
     function charger() {
-      fetch("https://localhost:443/metric/machines").then(r => r.json()).then(setMachines).catch(() => {});
-      fetch("https://localhost:443/alertes").then(r => r.json()).then(setAlertes).catch(() => {});
-      fetch("https://localhost:443/tickets").then(r => r.json()).then(setTickets).catch(() => {});
+      fetch(API_URL + "/metric/machines").then(r => r.json()).then(setMachines).catch(() => {});
+      fetch(API_URL + "/alertes").then(r => r.json()).then(setAlertes).catch(() => {});
+      fetch(API_URL + "/tickets").then(r => r.json()).then(setTickets).catch(() => {});
     }
     charger();
     const t = setInterval(charger, 5000);
@@ -33,7 +34,7 @@ export default function Dashboard() {
     if (machines.length === 0) return;
     const checkAll = () => {
       machines.forEach(hostname => {
-        fetch(`https://localhost:443/metric/ram?hostname=${hostname}`)
+        fetch(API_URL + `/metric/ram?hostname=${hostname}`)
           .then(r => r.json())
           .then(data => {
             if (!data.length) { setMachineStatus(p => ({ ...p, [hostname]: false })); return; }

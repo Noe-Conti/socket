@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { API_URL } from "../config"
 import "./tickets-style.css"
 
 function formatDate(iso) {
@@ -13,7 +14,7 @@ function Alertes() {
 
   useEffect(() => {
     const fetch_ = () => {
-      fetch("https://localhost:443/alertes")
+      fetch(API_URL + "/alertes")
         .then(r => r.json())
         .then(setAlertes)
         .catch(() => setAlertes([]));
@@ -24,7 +25,7 @@ function Alertes() {
   }, []);
 
   function resoudre(id) {
-    fetch(`https://localhost:443/alertes/${id}/resoudre`, { method: "POST" })
+    fetch(API_URL + `/alertes/${id}/resoudre`, { method: "POST" })
       .then(r => r.json())
       .then(() => setAlertes(prev => prev.map(a => a.id === id ? { ...a, statut: "résolue" } : a)));
   }
@@ -33,7 +34,7 @@ function Alertes() {
     const auteur = prompt("Votre nom :");
     if (!auteur) return;
     const commentaire = prompt("Commentaire initial :") || "Ticket créé depuis une alerte.";
-    fetch(`https://localhost:443/alertes/${alerte.id}/ticket`, {
+    fetch(API_URL + `/alertes/${alerte.id}/ticket`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ auteur, commentaire }),
@@ -93,7 +94,7 @@ function FormulaireTicket({ onCree }) {
 
   function soumettre(e) {
     e.preventDefault();
-    fetch("https://localhost:443/tickets", {
+    fetch(API_URL + "/tickets", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
@@ -128,7 +129,7 @@ function DetailTicket({ ticket, onRetour, onMaj }) {
 
   function ajouterCommentaire(e) {
     e.preventDefault();
-    fetch(`https://localhost:443/tickets/${ticket.id}/commentaire`, {
+    fetch(API_URL + `/tickets/${ticket.id}/commentaire`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(commentForm),
@@ -139,7 +140,7 @@ function DetailTicket({ ticket, onRetour, onMaj }) {
 
   function changerStatut(e) {
     e.preventDefault();
-    fetch(`https://localhost:443/tickets/${ticket.id}/statut`, {
+    fetch(API_URL + `/tickets/${ticket.id}/statut`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(statutForm),
@@ -219,7 +220,7 @@ function ListeTickets() {
   const [selected, setSelected] = useState(null);
 
   function charger() {
-    fetch("https://localhost:443/tickets")
+    fetch(API_URL + "/tickets")
       .then(r => r.json())
       .then(setTickets)
       .catch(() => setTickets([]));
