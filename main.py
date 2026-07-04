@@ -5,9 +5,13 @@ from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 from pymongo import MongoClient
 import asyncio
+import os
 import uuid
 
-client = MongoClient("mongodb://admin:password@mongo_db:27017/")
+MONGO_USER     = os.environ["MONGO_ROOT_USER"]
+MONGO_PASSWORD = os.environ["MONGO_ROOT_PASSWORD"]
+
+client = MongoClient(f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@mongo_db:27017/")
 db = client["socketdb"]
 
 col_ram         = db["ram"]
