@@ -3,6 +3,8 @@ import psutil
 import time
 import requests
 import socket
+import logging
+from logging.handlers import SysLogHandler
 
 # Identification de la machine
 HOSTNAME = socket.gethostname()
@@ -15,6 +17,16 @@ BACKEND_URL = os.environ["BACKEND_URL"]
 
 CA_CERT   = "/certs/ca.crt"
 AGENT_CERT = ("/certs/agent.crt", "/certs/agent.key")
+
+SYSLOG_FILE = "/var/log/syslog"
+
+logger = logging.getLogger("agent")
+logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
+try:
+    logger.addHandler(SysLogHandler(address="/dev/log"))
+except OSError:
+    pass  # rsyslog pas encore prêt / indisponible : on garde au moins la sortie standard
 
 
 def ramPush():
@@ -105,12 +117,44 @@ def connectionsPush():
     requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
 
 
-print(f"Agent démarré sur {HOSTNAME} ({IP})")
+_log_offset = 0
+_syslog_missing_warned = False
+
+def logsPush():
+    global _log_offset, _syslog_missing_warned
+    try:
+        if os.path.getsize(SYSLOG_FILE) < _log_offset:
+            _log_offset = 0  # fichier tronqué/pivoté (logrotate) : on repart du début
+
+        with open(SYSLOG_FILE, "r", errors="replace") as f:
+            f.seek(_log_offset)
+            new_lines = f.readlines()
+            _log_offset = f.tell()
+        _syslog_missing_warned = False
+    except FileNotFoundError:
+        if not _syslog_missing_warned:
+            logger.warning(f"{SYSLOG_FILE} introuvable : rsyslog n'a probablement pas démarré")
+            _syslog_missing_warned = True
+        return
+
+    if not new_lines:
+        return  # rien de nouveau depuis le dernier envoi
+
+    url = f"{BACKEND_URL}/metric/logs"
+    myobj = {
+        'logs': [line.rstrip("\n") for line in new_lines],
+        'hostname': HOSTNAME,
+        'ip': IP
+    }
+    requests.post(url, json=myobj, verify=CA_CERT, cert=AGENT_CERT)
+
+
+logger.info(f"Agent démarré sur {HOSTNAME} ({IP})")
 
 while True:
-    for push in (ramPush, cpuPush, openportsPush, diskPush, processesPush, connectionsPush):
+    for push in (ramPush, cpuPush, openportsPush, diskPush, processesPush, connectionsPush, logsPush):
         try:
             push()
         except requests.exceptions.RequestException as e:
-            print(f"Erreur d'envoi vers le backend ({push.__name__}): {e}")
+            logger.error(f"Erreur d'envoi vers le backend ({push.__name__}): {e}")
     time.sleep(3)

@@ -1,11 +1,11 @@
 FROM python:latest
 
 RUN apt update -y && apt upgrade -y
-RUN apt install iputils-ping -y
+RUN apt install iputils-ping rsyslog -y
 RUN pip install --upgrade pip --no-cache-dir psutil requests
 
 WORKDIR /app
 
 COPY agent.py .
 
-CMD ["python", "agent.py"]
+CMD rsyslogd && python agent.py

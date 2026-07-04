@@ -152,6 +152,15 @@
   font-family: monospace;
 }
 
+.metric-card-list.full-width {
+  grid-column: 1 / -1;
+}
+
+.metric-card-list.full-width ul li {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .no-selection {
   color: #aaa;
   font-style: italic;
