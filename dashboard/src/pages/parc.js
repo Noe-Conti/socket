@@ -168,7 +168,7 @@ export default function Parc() {
             }
             const last = new Date(data.at(-1).time_stamp);
             const ageSeconds = (Date.now() - last) / 1000;
-            setMachineStatus(prev => ({ ...prev, [hostname]: ageSeconds < 5 }));
+            setMachineStatus(prev => ({ ...prev, [hostname]: ageSeconds < 10 }));
           })
           .catch(() => setMachineStatus(prev => ({ ...prev, [hostname]: false })));
       });

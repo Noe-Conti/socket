@@ -43,17 +43,22 @@ SEUILS = {
     "disk": 85.0,
 }
 
+#On crée une fonction séparée pour éviter de bloquer toute l'exécution de la boucle
+#lors des vérifications, provoquant un passage des machines en offline
+#à intervalles irréguliers
+def _verifier_machine(machine: str):
+    _verifier_ram(machine)
+    _verifier_cpu(machine)
+    _verifier_disk(machine)
+    _verifier_ports(machine)
+    _verifier_logs(machine)
 
 async def surveillance_loop():
     while True:
         await asyncio.sleep(5)
-        machines = col_ram.distinct("hostname")
+        machines = await asyncio.to_thread(col_ram.distinct, "hostname")
         for machine in machines:
-            _verifier_ram(machine)
-            _verifier_cpu(machine)
-            _verifier_disk(machine)
-            _verifier_ports(machine)
-            _verifier_logs(machine)
+            await asyncio.to_thread(_verifier_machine, machine)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
